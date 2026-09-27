@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title id="pageTitle">Специально для тебя ✨</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Tone.js for ambient audio without external audio files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <style>
+        :root {
+            /* Theme Configurable Defaults */
+            --bg-color: #0b0a12;
+            --accent-primary: #e879f9;
+            --accent-glow: rgba(232, 121, 249, 0.35);
+            --accent-secondary: #f3e8ff;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover-border: rgba(232, 121, 249, 0.4);
+            --font-heading: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+            animation: orbFloat 18s ease-in-out infinite alternate;
+        }
+
+        .orb-1 {
+            width: 350px;
+            height: 350px;
+            background: var(--accent-glow);
+            top: -50px;
+            left: -50px;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(99, 102, 241, 0.25);
+            bottom: 10%;
+            right: -100px;
+            animation-delay: -6s;
+        }
+
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, 80px) scale(1.1); }
+            100% { transform: translate(-40px, 40px) scale(0.95); }
+        }
+
+        #sparkleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: clamp(1.2rem, 5vw, 3rem);
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(2.5rem, 6vw, 5rem);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.5rem;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 99px;
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            backdrop-filter: blur(12px);
+        }
+
+        .audio-toggle-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        .audio-toggle-btn:hover {
+            border-color: var(--card-hover-border);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .hero {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+            padding: clamp(1rem, 4vh, 3rem) 0;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-weight: 600;
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 8vw, 5.2rem);
+            font-weight: 600;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent-secondary) 70%, var(--accent-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            max-width: 900px;
+        }
+
+        .hero-description {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--text-muted);
+            max-width: 650px;
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 100%, 320px), 1fr));
+            gap: clamp(1rem, 3vw, 1.8rem);
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: clamp(1.5rem, 4vw, 2rem);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        @media (hover: hover) {
+            .glass-card:hover {
+                transform: translateY(-6px);
+                border-color: var(--card-hover-border);
+                box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6), 0 0 20px var(--accent-glow);
+                background: rgba(255, 255, 255, 0.07);
+            }
+        }
+
+        .glass-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+        }
+
+        .card-title {
+            font-family: var(--font-heading);
+            font-size: clamp(1.4rem, 3vw, 1.7rem);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .card-text {
+            font-size: clamp(0.9rem, 2vw, 0.98rem);
+            color: var(--text-muted);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .gallery-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .section-heading {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3rem);
+            text-align: center;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 45%, 300px), 1fr));
+            gap: 1.2rem;
+            width: 100%;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            aspect-ratio: 4/5;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        @media (hover: hover) {
+            .gallery-item:hover img {
+                transform: scale(1.06);
+            }
+        }
+
+        .generator-box {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: clamp(2rem, 5vw, 3.5rem);
+            text-align: center;
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .compliment-output {
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 750px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-md);
+            border: 1px dashed var(--card-border);
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--text-main);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Premium Action Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #a855f7 100%);
+            color: #0b0a12;
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: clamp(0.95rem, 2vw, 1.05rem);
+            padding: 1rem 2.2rem;
+            border: none;
+            border-radius: 99px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 10px 25px -5px var(--accent-glow);
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        @media (hover: hover) {
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 14px 30px -2px var(--accent-glow);
+                filter: brightness(1.1);
+            }
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-weight: 600;
+            padding: 0.9rem 1.8rem;
+            border-radius: 99px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--card-hover-border);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 10, 18, 0.85);
+            backdrop-filter: blur(16px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #141221;
+            border: 1px solid var(--card-hover-border);
+            border-radius: var(--radius-lg);
+            padding: clamp(2rem, 5vw, 3rem);
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glowing Orbs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <canvas id="sparkleCanvas"></canvas>
+
+    <div class="container">
+        
+        <!-- Navigation Bar -->
+        <nav class="top-bar">
+            <div class="brand-badge">
+                <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+                <span id="badgeText">Особое послание</span>
+            </div>
+            <button class="audio-toggle-btn" id="audioBtn">
+                <i data-lucide="music" style="width: 16px; height: 16px;"></i>
+                <span id="audioLabel">Музыка</span>
+            </button>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="hero">
+            <p class="hero-subtitle" id="heroSubtitle">Персональная страница</p>
+            <h1 class="hero-title" id="heroTitle">Для Name</h1>
+            <p class="hero-description" id="heroDescription">
+                Небольшое напоминание о твоем утонченном стиле, интеллекте и той классной энергии, которую ты создаешь вокруг.
+            </p>
+        </header>
+
+        <main class="grid" id="cardsGrid">
+            <!-- Dynamic Cards Populated by JS -->
+        </main>
+
+        <!-- Gallery Section -->
+        <section class="gallery-section">
+            <h2 class="section-heading">Особые моменты ✨</h2>
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Gallery items populated by JS -->
+            </div>
+        </section>
+
+        <!-- Praise Generator Section -->
+        <section class="generator-box">
+            <h2 class="section-heading">Генератор вдохновения</h2>
+            <p style="color: var(--text-muted);">Нажмите на кнопку, когда понадобится порция позитива</p>
+
+            <div class="compliment-output" id="complimentDisplay">
+                Нажмите кнопку ниже, чтобы получить признание ✨
+            </div>
+
+            <button class="btn-primary" id="generateBtn">
+                <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i>
+                <span>Получить комплимент</span>
+            </button>
+        </section>
+
+        <!-- Secret Letter Button -->
+        <div style="text-align: center;">
+            <button class="btn-secondary" id="openNoteBtn">
+                <i data-lucide="mail" style="width: 18px; height: 18px;"></i>
+                <span>Открыть личное записку</span>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p id="footerText">Создано с уважением и хорошим настроением ✨</p>
+            <p style="opacity: 0.5; font-size: 0.8rem;" id="footerCopyright">© Специально для тебя</p>
+        </footer>
+
+    </div>
+
+    <div class="modal-overlay" id="noteModal">
+        <div class="modal-card">
+            <button class="modal-close" id="closeNoteBtn">
+                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+            </button>
+            <div style="color: var(--accent-primary);"><i data-lucide="heart" style="width: 32px; height: 32px;"></i></div>
+            <h3 style="font-family: var(--font-heading); font-size: 2rem;" id="modalTitle">Записка от автора</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.7;" id="modalBody">
+                Текст личного обращения...
+            </p>
+            <button class="btn-primary" id="modalCloseBtn" style="justify-content: center; width: 100%;">
+                Понятно, спасибо! ✨
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. SELLER CONFIGURATION PANEL (ПАНЕЛЬ НАСТРОЕК ПРОДАВЦА)
+           Редактируйте эти параметры под заказчика за 30 секунд!
+           ========================================================================== */
+        const SELLER_CONFIG = {
+            // Имя девушки
+            girlName: "Name",
+
+            // Тематический акцентный цвет (HEX код или предустановленные)
+            // Примеры: "#e879f9" (розовый), "#38bdf8" (голубой), "#f59e0b" (золотой), "#10b981" (изумруд)
+            accentThemeColor: "#e879f9",
+
+            // Текстовые блоки
+            heroSubtitle: "Персональная страница",
+            heroDescription: "Небольшое напоминание о твоем утонченном стиле, уме и той особенной энергии, которую ты излучаешь.",
+            
+            // Записка в всплывающем окне (Secret Note Modal)
+            personalNote: "Просто хотелось поднять тебе настроение и напомнить, что твоя улыбка и чувство юмора делают любой день намного лучше. Оставайся всегда такой же вдохновляющей!",
+
+            // Карточки комплиментов (6 блоков)
+            cards: [
+                {
+                    icon: "zap",
+                    title: "Особая энергия",
+                    desc: "Рядом с тобой всегда легко. У тебя есть редкая способность создавать классную атмосферу простым присутствием."
+                },
+                {
+                    icon: "smile",
+                    title: "Искренний юмор",
+                    desc: "Твой юмор и внимание к деталям подкупают. С тобой приятно посмеяться над любыми мелочами."
+                },
+                {
+                    icon: "palette",
+                    title: "Чувство стиля",
+                    desc: "Твой эстетический вкус виден во всем: от аккуратности в деталях до того, как ты выбираешь вещи вокруг себя."
+                },
+                {
+                    icon: "brain",
+                    title: "Острый ум",
+                    desc: "Замечательно наблюдать, как нестандартно ты умеешь мыслить и смотреть на вещи под неожиданным углом."
+                },
+                {
+                    icon: "sun",
+                    title: "Теплая улыбка",
+                    desc: "Когда ты искренне улыбаешься — это моментально заряжает. Улыбайся чаще, тебе это невероятно идет!"
+                },
+                {
+                    icon: "compass",
+                    title: "Свой путь",
+                    desc: "Вдохновляет видеть человека, который уверенно остается собой, развивается и идет к своим целям."
+                }
+            ],
+
+            // Список случайных комплиментов для генератора
+            complimentsList: [
+                "Ты отлично справляешься со всем, за что берешься. Помни об этом!",
+                "Твой день сегодня обязательно принесет хотя бы один очень приятный момент.",
+                "Напоминание: ты намного сильнее и талантливее, чем тебе иногда кажется.",
+                "Сегодня отличный повод порадовать себя любимым напитком или вкусным десертом.",
+                "Твой вкус и внимание к деталям делают этот мир немного эстетичнее.",
+                "Улыбнись! У тебя прекрасная улыбка, способная украсить любой день.",
+                "Пусть сегодня все задачи решаются легко и без лишней суеты!"
+            ],
+
+            // Галерея фотографий (Ссылки на фото или стильные плейсхолдеры)
+            galleryPhotos: [
+                "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80"
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Apply Seller Configurations
+            document.documentElement.style.setProperty('--accent-primary', SELLER_CONFIG.accentThemeColor);
+            document.documentElement.style.setProperty('--accent-glow', `${SELLER_CONFIG.accentThemeColor}55`);
+            
+            document.getElementById('pageTitle').textContent = `Для ${SELLER_CONFIG.girlName} ✨`;
+            document.getElementById('heroSubtitle').textContent = SELLER_CONFIG.heroSubtitle;
+            document.getElementById('heroTitle').textContent = `Для ${SELLER_CONFIG.girlName}`;
+            document.getElementById('heroDescription').textContent = SELLER_CONFIG.heroDescription;
+            document.getElementById('modalTitle').textContent = `Записка для ${SELLER_CONFIG.girlName}`;
+            document.getElementById('modalBody').textContent = SELLER_CONFIG.personalNote;
+            document.getElementById('footerCopyright').textContent = `© Специально для ${SELLER_CONFIG.girlName}`;
+
+            // Populate Cards
+            const cardsGrid = document.getElementById('cardsGrid');
+            cardsGrid.innerHTML = '';
+            SELLER_CONFIG.cards.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'glass-card';
+                cardEl.innerHTML = `
+                    <div class="card-icon-wrap">
+                        <i data-lucide="${card.icon}"></i>
+                    </div>
+                    <h3 class="card-title">${card.title}</h3>
+                    <p class="card-text">${card.desc}</p>
+                `;
+                cardsGrid.appendChild(cardEl);
+            });
+
+            // Populate Gallery
+            const galleryGrid = document.getElementById('galleryGrid');
+            galleryGrid.innerHTML = '';
+            SELLER_CONFIG.galleryPhotos.forEach((photoUrl, idx) => {
+                const galleryEl = document.createElement('div');
+                galleryEl.className = 'gallery-item';
+                galleryEl.innerHTML = `
+                    <img src="${photoUrl}" alt="Photo ${idx + 1}" onerror="this.src='https://placehold.co/600x800/1e1b2e/e879f9?text=Moment+${idx + 1}'">
+                `;
+                galleryGrid.appendChild(galleryEl);
+            });
+
+            // Re-render Icons
+            lucide.createIcons();
+
+            // Generator Logic
+            const generateBtn = document.getElementById('generateBtn');
+            const complimentDisplay = document.getElementById('complimentDisplay');
+            let lastIndex = -1;
+
+            generateBtn.addEventListener('click', () => {
+                complimentDisplay.style.opacity = '0';
+                complimentDisplay.style.transform = 'translateY(-6px)';
+
+                setTimeout(() => {
+                    let newIndex;
+                    do {
+                        newIndex = Math.floor(Math.random() * SELLER_CONFIG.complimentsList.length);
+                    } while (newIndex === lastIndex && SELLER_CONFIG.complimentsList.length > 1);
+                    
+                    lastIndex = newIndex;
+                    complimentDisplay.textContent = SELLER_CONFIG.complimentsList[newIndex];
+                    complimentDisplay.style.opacity = '1';
+                    complimentDisplay.style.transform = 'translateY(0)';
+                }, 250);
+            });
+
+            // Modal Handlers
+            const modal = document.getElementById('noteModal');
+            const openNoteBtn = document.getElementById('openNoteBtn');
+            const closeNoteBtn = document.getElementById('closeNoteBtn');
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+            const toggleModal = (show) => {
+                if (show) modal.classList.add('active');
+                else modal.classList.remove('active');
+            };
+
+            openNoteBtn.addEventListener('click', () => toggleModal(true));
+            closeNoteBtn.addEventListener('click', () => toggleModal(false));
+            modalCloseBtn.addEventListener('click', () => toggleModal(false));
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) toggleModal(false);
+            });
+
+            // Audio Synthesis (Tone.js Ambient Sound)
+            const audioBtn = document.getElementById('audioBtn');
+            const audioLabel = document.getElementById('audioLabel');
+            let isPlaying = false;
+            let synth = null;
+            let loop = null;
+
+            audioBtn.addEventListener('click', async () => {
+                if (!isPlaying) {
+                    await Tone.start();
+                    synth = new Tone.PolySynth(Tone.Synth, {
+                        oscillator: { type: "sine" },
+                        envelope: { attack: 2, decay: 1, sustain: 0.8, release: 3 }
+                    }).toDestination();
+                    synth.volume.value = -18;
+
+                    const chords = [["C4", "E4", "G4", "B4"], ["A3", "C4", "E4", "G4"], ["F3", "A3", "C4", "E4"]];
+                    let step = 0;
+
+                    loop = new Tone.Loop(time => {
+                        synth.triggerAttackRelease(chords[step % chords.length], "2m", time);
+                        step++;
+                    }, "2m").start(0);
+
+                    Tone.Transport.bpm.value = 60;
+                    Tone.Transport.start();
+                    isPlaying = true;
+                    audioLabel.textContent = "Включено 🎵";
+                    audioBtn.style.borderColor = "var(--accent-primary)";
+                } else {
+                    Tone.Transport.stop();
+                    if (synth) synth.dispose();
+                    isPlaying = false;
+                    audioLabel.textContent = "Музыка";
+                    audioBtn.style.borderColor = "var(--card-border)";
+                }
+            });
+
+            // Sparkle Particle Background
+            const canvas = document.getElementById('sparkleCanvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            class Sparkle {
+                constructor() {
+                    this.reset();
+                }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 1.8 + 0.2;
+                    this.alpha = Math.random() * 0.5 + 0.1;
+                    this.speed = Math.random() * 0.2 + 0.05;
+                }
+                update() {
+                    this.y -= this.speed;
+                    if (this.y < 0) this.reset();
+                }
+                draw() {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function initSparkles() {
+                resizeCanvas();
+                particles = Array.from({ length: 40 }, () => new Sparkle());
+            }
+
+            function animateSparkles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animateSparkles);
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            initSparkles();
+            animateSparkles();
+        });
+    </script>
+</body>
+</html>
